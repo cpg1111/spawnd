@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package protobufs;
+
+service Process {
+    rpc Start (ProcessStateRequest) returns (ProcessStateReply) {}
+    rpc Stop (ProcessStateRequest) returns (ProcessStateReply) {}
+    rpc Restart (ProcessStateRequest) returns (ProcessStateReply) {}
+    rpc Reload (ProcessStateRequest) returns (ProcessStateReply) {}
+}
+
+message ProcessStateRequest {
+    string name = 1;
+    string state = 2;
+}
+
+message ProcessStateReply {
+    string name = 1;
+    string state = 2;
+    string message = 3;
+}

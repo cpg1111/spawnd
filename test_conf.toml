@@ -1,0 +1,24 @@
+[Server]
+    [Server.Unix]
+    Path="/var/run/spawn.sock"
+    Owner="root"
+    Group="root"
+    Mode=0775
+
+[Daemon]
+User="root"
+Group="root"
+Umask=0644
+
+[Logging]
+STDOUTPath="/var/log/spawnd/out/"
+STDERRPath="/var/log/spawnd/err/"
+
+[[Processes]]
+Name="ping_test"
+CMD=["ping", "www.google.com"]
+Priority=1
+NumProcs=1
+AutoRestart=true
+InContainer=false
+
