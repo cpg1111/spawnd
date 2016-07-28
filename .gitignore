@@ -26,3 +26,6 @@ _testmain.go
 # Vendor deps
 vendor/**/*
 !vendor/vendor.json
+
+# Vim swp files
+*.swp
