@@ -29,3 +29,6 @@ vendor/**/*
 
 # Vim swp files
 *.swp
+
+# Generated go from protobufs
+**/*.pb.go

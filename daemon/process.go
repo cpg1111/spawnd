@@ -28,6 +28,14 @@ func NewProcess(conf *config.Process) *Process {
 	}
 }
 
+func (p *Process) GetPID() int {
+	return p.PID
+}
+
+func (p *Process) GetName() string {
+	return p.Name
+}
+
 func (p *Process) Start() (pid int, err error) {
 	bin := exec.LookPath(p.cmd[0])
 	com := exec.Command(bin, p.cmd[1:]...)
