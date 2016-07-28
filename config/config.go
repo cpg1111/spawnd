@@ -1,12 +1,19 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"github.com/BurntSushi/toml"
 )
 
+type ConnServer interface {
+	Addr() string
+	Type() string
+}
+
 type UnixServer struct {
+	ConnServer
 	Path  string
 	User  string
 	PWD   string
@@ -15,11 +22,28 @@ type UnixServer struct {
 	Mode  uint
 }
 
+func (u UnixServer) Addr() string {
+	return u.Path
+}
+
+func (u UnixServer) Type() string {
+	return "unix"
+}
+
 type InetServer struct {
+	ConnServer
 	Host string
 	Port int
 	User string
 	PWD  string
+}
+
+func (i InetServer) Addr() string {
+	return fmt.Sprintf("%s:%d", i.Host, i.Port)
+}
+
+func (i InetServer) Type() string {
+	return "tcp"
 }
 
 type Server struct {

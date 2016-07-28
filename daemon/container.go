@@ -35,6 +35,14 @@ func NewContainer(confProc *config.Process) *Container {
 	}
 }
 
+func (c *Container) GetPID() int {
+	return c.PID
+}
+
+func (c *Container) GetName() string {
+	return c.Name
+}
+
 func (c *Container) Start() (pid int, err error) {
 	dir := spawnDir()
 	cmdPath := fmt.Sprintf("%s/spawn-container")
