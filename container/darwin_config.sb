@@ -1,0 +1,8 @@
+(version 1)
+(debug deny)
+
+(import "bsd.sb")
+(allow signal)
+(allow ipc-posix-shm)
+(allow process*)
+
