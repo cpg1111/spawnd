@@ -4,8 +4,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/grpc/grpc-go"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 
 	"github.com/cpg1111/spawnd/config"
 	"github.com/cpg1111/spawnd/daemon"
@@ -15,7 +15,7 @@ import (
 type Server struct {
 	Daemon  *daemon.Daemon
 	GRPCSrv *grpc.Server
-	TCP     *net.Listener
+	TCP     net.Listener
 	pServer *server
 }
 
@@ -23,7 +23,7 @@ type server struct {
 	daemon *daemon.Daemon
 }
 
-func New(conf *config.ConnServer, d *daemon.Daemon) *Server {
+func New(conf config.ConnServer, d *daemon.Daemon) *Server {
 	tcp, tcpErr := net.Listen(conf.Type(), conf.Addr())
 	if tcpErr != nil {
 		log.Fatal(tcpErr)
@@ -33,7 +33,6 @@ func New(conf *config.ConnServer, d *daemon.Daemon) *Server {
 		daemon: d,
 	}
 	pb.RegisterProcessServer(grpcSrv, srv)
-	grpcSrv.Serve(tcp)
 	return &Server{
 		Daemon:  d,
 		GRPCSrv: grpcSrv,
@@ -42,17 +41,22 @@ func New(conf *config.ConnServer, d *daemon.Daemon) *Server {
 	}
 }
 
-func getProc(in *pb.ProcessStateRequest) *daemon.Proc {
+func (s *Server) Run() error {
+	return s.GRPCSrv.Serve(s.TCP)
+}
+
+func (s *server) getProc(in *pb.ProcessStateRequest) *daemon.Proc {
 	if in.PID > 0 {
-		proc = s.daemon.GetProc(in.PID)
+		return s.daemon.GetProc((int)(in.PID))
 	} else {
-		proc = s.daemon.GetProcByName(in.Name)
+		return s.daemon.GetProcByName(in.Name)
 	}
 }
 
 func (s *server) Start(ctx context.Context, in *pb.ProcessStateRequest) (*pb.ProcessStateReply, error) {
-	proc := getProc(in)
-	_, err := proc.Start()
+	proc := s.getProc(in)
+	procVal := *proc
+	_, err := procVal.Start()
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +68,9 @@ func (s *server) Start(ctx context.Context, in *pb.ProcessStateRequest) (*pb.Pro
 }
 
 func (s *server) Stop(ctx context.Context, in *pb.ProcessStateRequest) (*pb.ProcessStateReply, error) {
-	proc := getProc(in)
-	err := proc.Stop()
+	proc := s.getProc(in)
+	procVal := *proc
+	err := procVal.Stop()
 	if err != nil {
 		return nil, err
 	}
@@ -77,8 +82,9 @@ func (s *server) Stop(ctx context.Context, in *pb.ProcessStateRequest) (*pb.Proc
 }
 
 func (s *server) Restart(ctx context.Context, in *pb.ProcessStateRequest) (*pb.ProcessStateReply, error) {
-	proc := getProc(in)
-	_, err := proc.Restart()
+	proc := s.getProc(in)
+	procVal := *proc
+	_, err := procVal.Restart()
 	if err != nil {
 		return nil, err
 	}
@@ -90,8 +96,9 @@ func (s *server) Restart(ctx context.Context, in *pb.ProcessStateRequest) (*pb.P
 }
 
 func (s *server) Reload(ctx context.Context, in *pb.ProcessStateRequest) (*pb.ProcessStateReply, error) {
-	proc := getProc(in)
-	err := proc.Reload()
+	proc := s.getProc(in)
+	procVal := *proc
+	err := procVal.Reload()
 	if err != nil {
 		return nil, err
 	}

@@ -1,12 +1,13 @@
 package daemon
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"syscall"
 
-	"github.com/cpg1111/spawn"
+	"github.com/cpg1111/spawnd/config"
 )
 
 func spawndDir() string {
@@ -31,32 +32,36 @@ func NewContainer(confProc *config.Process) *Container {
 	return &Container{
 		Name:    confProc.Name,
 		Command: confProc.CMD,
-		conf:    confProc.Container,
+		conf:    &confProc.Container,
 	}
 }
 
-func (c *Container) GetPID() int {
+func (c Container) GetPID() int {
 	return c.PID
 }
 
-func (c *Container) GetName() string {
+func (c *Container) SetPID(pid int) {
+	c.PID = pid
+}
+
+func (c Container) GetName() string {
 	return c.Name
 }
 
-func (c *Container) Start() (pid int, err error) {
-	dir := spawnDir()
-	cmdPath := fmt.Sprintf("%s/spawn-container")
+func (c Container) Start() (pid int, err error) {
+	dir := spawndDir()
+	cmdPath := fmt.Sprintf("%s/spawn-container", dir)
 	cmd := exec.Command(cmdPath, c.Command...)
 	startErr := cmd.Start()
 	c.PID = cmd.Process.Pid
 	return c.PID, startErr
 }
 
-func (c *Container) Stop() error {
+func (c Container) Stop() error {
 	return syscall.Kill(c.PID, syscall.SIGTERM)
 }
 
-func (c *Container) Restart() (pid int, err error) {
+func (c Container) Restart() (pid int, err error) {
 	err = c.Stop()
 	if err != nil {
 		return c.PID, err
@@ -64,6 +69,6 @@ func (c *Container) Restart() (pid int, err error) {
 	return c.Start()
 }
 
-func (c *Container) Reload() error {
+func (c Container) Reload() error {
 	return syscall.Kill(c.PID, syscall.SIGHUP)
 }
