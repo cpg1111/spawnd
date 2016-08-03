@@ -12,6 +12,7 @@ service Process {
 message ProcessStateRequest {
     string name = 1;
     string state = 2;
+    int32 PID = 3;
 }
 
 message ProcessStateReply {

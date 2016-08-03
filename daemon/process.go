@@ -1,7 +1,6 @@
 package daemon
 
 import (
-	"os"
 	"os/exec"
 	"syscall"
 
@@ -12,7 +11,6 @@ type Process struct {
 	Proc
 	Name     string
 	Command  []string
-	Umask    uint
 	Priority int
 	UID      int
 	GID      int
@@ -23,43 +21,47 @@ func NewProcess(conf *config.Process) *Process {
 	return &Process{
 		Name:     conf.Name,
 		Command:  conf.CMD,
-		Umask:    conf.Umask,
 		Priority: conf.Priority,
 	}
 }
 
-func (p *Process) GetPID() int {
+func (p Process) GetPID() int {
 	return p.PID
 }
 
-func (p *Process) GetName() string {
+func (p *Process) SetPID(pid int) {
+	p.PID = pid
+}
+
+func (p Process) GetName() string {
 	return p.Name
 }
 
-func (p *Process) Start() (pid int, err error) {
-	bin := exec.LookPath(p.cmd[0])
-	com := exec.Command(bin, p.cmd[1:]...)
-	err = com.Start()
-	pid = com.Process.Pid
-	p.PID = pid
+func (p Process) Start() (pid int, err error) {
+	bin, binErr := exec.LookPath(p.Command[0])
+	if binErr != nil {
+		return -1, binErr
+	}
+	cmd := exec.Command(bin, p.Command[1:]...)
+	err = cmd.Start()
+	pid = cmd.Process.Pid
 	return
 }
 
-func (p *Process) Stop() error {
+func (p Process) Stop() error {
 	return syscall.Kill(p.PID, syscall.SIGTERM)
 }
 
-func (p *Process) Restart() (pid int, err error) {
+func (p Process) Restart() (pid int, err error) {
 	err = p.Stop()
 	if err != nil {
 		pid = -1
 		return
 	}
 	pid, err = p.Start()
-	p.Pid = pid
 	return
 }
 
-func (p *Process) Reload() error {
-	return syscall.Kill(p.Pid, syscall.SIGHUP)
+func (p Process) Reload() error {
+	return syscall.Kill(p.PID, syscall.SIGHUP)
 }
