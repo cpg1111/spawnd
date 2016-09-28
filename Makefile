@@ -8,6 +8,7 @@ build:
 	govendor sync
 	go build -o spawnd-container container/container.go
 	go build -o spawnd main.go
+	go build -o spawnctl client/main.go
 
 test:
 	go test -v ./...
