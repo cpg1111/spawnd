@@ -10,7 +10,7 @@ Vagrant.configure(2) do |config|
         arch = 'linux-amd64'
         home_dir = '/home'
     elsif ENV['VAGRANT_OS'] == "freebsd"
-        config.vm.box = "freebsd/FreeBSD-11.0-CURRENT"
+        config.vm.box = "bento/freebsd-10.2"
         arch = 'freebsd-amd64'
         home_dir = '/home'
     end
