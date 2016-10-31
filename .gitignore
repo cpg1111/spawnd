@@ -36,3 +36,6 @@ vendor/**/*
 # Local built binaries
 spawnd
 spawnd-container
+
+# vagrant
+.vagrant/*
