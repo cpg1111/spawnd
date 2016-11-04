@@ -40,5 +40,4 @@ struct JailWrapper* new_jail_wrapper(char* cmd)
     struct JailWrapper *jail_wrapper = (struct JailWrapper*) calloc(3, JailWrapper);
     jail_wrapper->bsd_jail = _jail;
     jail_wrapper->user = getuid();
-
 }
