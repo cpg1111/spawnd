@@ -1,11 +1,7 @@
 all: build
 
-get-deps:
-	cd ${GOPATH} && \
-	go get -u github.com/kardianos/govendor
-
 build:
-	govendor sync
+	glide install
 	go build -o spawnd-container container/container.go
 	go build -o spawnd main.go
 	go build -o spawnctl client/main.go
