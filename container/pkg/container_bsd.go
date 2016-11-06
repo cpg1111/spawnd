@@ -3,5 +3,5 @@ package pkg
 // +build freebsd
 
 import (
-	"C"
+	jail "github.com/cpg111/go-jail"
 )
