@@ -1,8 +1,10 @@
-hash: e29b1102803d038d7051397d86348e0e91e77f66cd465814ff40d4b405cdf187
-updated: 2016-11-03T22:16:25.615661265-04:00
+hash: 5f23c7ffb2b002d962de75d8537bb217d330f70a8aafae366a17f252da9787b7
+updated: 2016-11-07T19:47:00.142619004-05:00
 imports:
 - name: github.com/BurntSushi/toml
   version: bbd5bb678321a0d6e58f1099321dfa73391c1b6f
+- name: github.com/cpg1111/go-jail
+  version: de9b09eaee70b232a1c23b418a82723cffc7d4d7
 - name: github.com/golang/protobuf
   version: 8616e8ee5e20a1704615e6c8d7afcdac06087a67
   subpackages:
@@ -26,8 +28,6 @@ imports:
   - naming
   - peer
   - transport
-- name: github.com/cpg1111/go-jail
-  version: de9b09eaee70b232a1c23b418a82723cffc7d4d7
 testImports:
 - name: github.com/fatih/structs
   version: dc3312cb1a4513a366c4c9e622ad55c32df12ed3

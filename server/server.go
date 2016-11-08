@@ -1,10 +1,10 @@
 package server
 
 import (
-	"context"
 	"log"
 	"net"
 
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	"github.com/cpg1111/spawnd/config"
