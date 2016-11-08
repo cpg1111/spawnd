@@ -1,11 +1,11 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	cli "github.com/cpg1111/spawnd/client/pkg"

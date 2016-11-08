@@ -26,6 +26,8 @@ imports:
   - naming
   - peer
   - transport
+- name: github.com/cpg1111/go-jail
+  version: de9b09eaee70b232a1c23b418a82723cffc7d4d7
 testImports:
 - name: github.com/fatih/structs
   version: dc3312cb1a4513a366c4c9e622ad55c32df12ed3
