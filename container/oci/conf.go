@@ -66,7 +66,7 @@ type device struct {
 	Minor    int64  `json:"minor"`
 	FileMode uint32 `json:"fileMode"`
 	UID      uint32 `json:"uid"`
-	gid      uint32 `json:"gid"`
+	GID      uint32 `json:"gid"`
 }
 
 type memory struct {
