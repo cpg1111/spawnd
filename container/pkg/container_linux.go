@@ -7,10 +7,13 @@ import (
 	"syscall"
 )
 
-func parent() {
-	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, os.Args[2:]...))
+func Parent() {
+	cmd := exec.Command("/proc/self/exe", "child")
+	if len(os.Args) > 2 {
+		cmd.Args = append(cmd.Args, os.Args[2:]...)
+	}
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
+		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWIPC | syscall.CLONE_NEWUSER | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
 	}
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -21,23 +24,8 @@ func parent() {
 	}
 }
 
-func child() {
-	mountErr := syscall.Mount("rootfs", "rootfs", "", syscall.MS_BIND, "")
-	if mountErr != nil {
-		log.Fatal("ERROR:", mountErr)
-	}
-	mkdirErr := os.MkdirAll("rootfs/copy", 0700)
-	if mkdirErr != nil {
-		log.Fatal("ERROR:", mkdirErr)
-	}
-	pivotErr := syscall.PivotRoot("rootfs", "rootfs/copy")
-	if pivotErr != nil {
-		log.Fatal("ERROR:", pivotErr)
-	}
-	chdirErr := os.Chdir("/")
-	if chdirErr != nil {
-		log.Fatal("ERROR:", chdirErr)
-	}
+func Child() {
+	// TODO: chroot fs
 	cmd := exec.Command(os.Args[2], os.Args[3:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
