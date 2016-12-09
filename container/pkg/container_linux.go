@@ -1,19 +1,23 @@
 package pkg
 
 import (
+	"errors"
 	"log"
 	"os"
 	"os/exec"
 	"syscall"
+
+	"github.com/cpg1111/spawnd/oci"
 )
 
-func Parent() {
-	cmd := exec.Command("/proc/self/exe", "child")
-	if len(os.Args) > 2 {
-		cmd.Args = append(cmd.Args, os.Args[2:]...)
+func parent(conf *oci.Config) {
+	cmd := exec.Command("/proc/self/exe", "child", os.Args[2])
+	cloneFlags, nsErr := oci.SetupNamespaces(conf)
+	if nsErr != nil {
+		panic(nsErr)
 	}
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWIPC | syscall.CLONE_NEWUSER | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
+		CloneFlags: cloneFlags,
 	}
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -24,9 +28,15 @@ func Parent() {
 	}
 }
 
-func Child() {
-	// TODO: chroot fs
-	cmd := exec.Command(os.Args[2], os.Args[3:]...)
+func Child(conf *oci.Config) {
+	err := oci.SetupFS(conf)
+	if err != nil {
+		panic(err)
+	}
+	cmd := exec.Command(exec.LookPath(conf.Process.Args[0]))
+	if len(conf.Process.Args) > 1 {
+		cmd.Args = append(cmd.Args, conf.Process.Args[1:]...)
+	}
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
