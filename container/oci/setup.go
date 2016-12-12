@@ -121,3 +121,25 @@ func SetCaps(conf *Config) error {
 	}
 	c.Set(capability.CAPS, capabilities...)
 }
+
+func setRLimit(ty string, hard, soft int) error {
+	resource, err := rlimitType(ty)
+	if err != nil {
+		return err
+	}
+	rlimit := &syscall.Rlimit{
+		Cur: uint64(soft),
+		Max: uint64(hard),
+	}
+	return syscall.Setrlimit(resource, rlimit)
+}
+
+func SetRLimits(conf *Config) error {
+	for _, rlim := range conf.Process.Rlimits {
+		err := setRLimit(rlim.Type, rlim.Hard, rlim.Soft)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

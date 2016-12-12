@@ -31,7 +31,7 @@ func Parent(conf *oci.Config) {
 	}
 }
 
-func Child(conf *oci.Config) {
+func setupChild(conf *oci.Config) {
 	err := oci.SetupFS(conf)
 	if err != nil {
 		panic(err)
@@ -48,6 +48,13 @@ func Child(conf *oci.Config) {
 	if err != nil {
 		panic(err)
 	}
+	err = oci.SetRLimits(conf)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func execChild(conf *oci.Config) {
 	cmd := exec.Command(exec.LookPath(conf.Process.Args[0]))
 	if len(conf.Process.Args) > 1 {
 		cmd.Args = append(cmd.Args, conf.Process.Args[1:]...)
@@ -59,4 +66,9 @@ func Child(conf *oci.Config) {
 	if runErr != nil {
 		log.Fatal(runErr)
 	}
+}
+
+func Child(conf *oci.Config) {
+	setupChild(conf)
+	execChild(conf)
 }
