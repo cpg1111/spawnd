@@ -81,3 +81,23 @@ func SetupNamespaces(conf *Config) (uintptr, error) {
 	}
 	return flags, nil
 }
+
+func SetupUser(conf *Config) error {
+	uid := 1
+	if conf.Process.User.UID != nil {
+		uid = conf.Process.User.UID
+	}
+	err := syscall.Setuid(uid)
+	if err != nil {
+		return err
+	}
+	gid := 1
+	if conf.Process.User.GID != nil {
+		gid = conf.Process.User.GID
+	}
+	if len(conf.Process.User.AdditonalGIDs) > 0 {
+		err = syscall.Setgroups(append(conf.Process.User.AdditionalGIDs, gid))
+		return err
+	}
+	return syscall.Setgid(gid)
+}

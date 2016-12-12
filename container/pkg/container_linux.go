@@ -10,7 +10,7 @@ import (
 	"github.com/cpg1111/spawnd/oci"
 )
 
-func parent(conf *oci.Config) {
+func Parent(conf *oci.Config) {
 	cmd := exec.Command("/proc/self/exe", "child", os.Args[2])
 	cloneFlags, nsErr := oci.SetupNamespaces(conf)
 	if nsErr != nil {
@@ -18,6 +18,8 @@ func parent(conf *oci.Config) {
 	}
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		CloneFlags: cloneFlags,
+		Setctty:    conf.Process.Terminal,
+		Noctty:     !conf.Process.Terminal,
 	}
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -30,6 +32,10 @@ func parent(conf *oci.Config) {
 
 func Child(conf *oci.Config) {
 	err := oci.SetupFS(conf)
+	if err != nil {
+		panic(err)
+	}
+	err = oci.SetupUser(conf)
 	if err != nil {
 		panic(err)
 	}
