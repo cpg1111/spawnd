@@ -108,3 +108,13 @@ func SetCWD(conf *Config) error {
 	}
 	return nil
 }
+
+func SetupEnv(conf *Config) error {
+	for _, e := range conf.Process.Env {
+		err := ParseENVStr(e)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

@@ -43,6 +43,10 @@ func Child(conf *oci.Config) {
 	if err != nil {
 		panic(err)
 	}
+	err = oci.SetEnv(conf)
+	if err != nil {
+		panic(err)
+	}
 	cmd := exec.Command(exec.LookPath(conf.Process.Args[0]))
 	if len(conf.Process.Args) > 1 {
 		cmd.Args = append(cmd.Args, conf.Process.Args[1:]...)
