@@ -181,7 +181,10 @@ type hooks struct {
 	PostStop  []hook `json:"poststop"`
 }
 
-type Config struct {
+type Config interface{}
+
+type linuxConfig struct {
+	Config
 	OCIVersion string   `json:"ociversion"`
 	Root       rootfs   `json:"root"`
 	Mounts     []mount  `json:"mounts"`
@@ -192,12 +195,24 @@ type Config struct {
 	Hooks      hooks    `json:"hooks",omitempty`
 }
 
-func LoadConfig(path string) (*Config, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	conf := &Config{}
-	err = json.Encoder(file).Encode(conf)
-	return conf, err
+type bsdConfig struct {
+	Config
+	OCIVersion string   `json:"ociversion"`
+	Root       rootfs   `json:"root"`
+	Mounts     []mount  `json:"mounts"`
+	Process    process  `json:"process"`
+	HostName   string   `json:"hostname"`
+	Platform   platform `json:"platform"`
+	Hooks      hooks    `json:"hooks",omitempty`
+}
+
+type darwinConfig struct {
+	Config
+	OCIVersion string   `json:"ociversion"`
+	Root       rootfs   `json:"root"`
+	Mounts     []mount  `json:"mounts"`
+	Process    process  `json:"process"`
+	HostName   string   `json:"hostname"`
+	Platform   platform `json:"platform"`
+	Hooks      hooks    `json:"hooks",omitempty`
 }
