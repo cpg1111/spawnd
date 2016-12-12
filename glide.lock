@@ -1,5 +1,5 @@
-hash: 5f23c7ffb2b002d962de75d8537bb217d330f70a8aafae366a17f252da9787b7
-updated: 2016-11-07T19:47:00.142619004-05:00
+hash: 7e3f9a27d306a2ca0ed8602c35631f0744f75cd6025de97b9f9075c39981f920
+updated: 2016-12-12T12:12:33.269038856-05:00
 imports:
 - name: github.com/BurntSushi/toml
   version: bbd5bb678321a0d6e58f1099321dfa73391c1b6f
@@ -9,6 +9,8 @@ imports:
   version: 8616e8ee5e20a1704615e6c8d7afcdac06087a67
   subpackages:
   - proto
+- name: github.com/syndtr/gocapability
+  version: e7cb7fa329f456b3855136a2642b197bad7366ba
 - name: golang.org/x/net
   version: 6acef71eb69611914f7a30939ea9f6e194c78172
   subpackages:
@@ -18,7 +20,7 @@ imports:
   - internal/timeseries
   - trace
 - name: google.golang.org/grpc
-  version: 777daa17ff9b5daef1cfdf915088a2ada3332bf0
+  version: 708a7f9f3283aa2d4f6132d287d78683babe55c8
   subpackages:
   - codes
   - credentials
@@ -27,6 +29,8 @@ imports:
   - metadata
   - naming
   - peer
+  - stats
+  - tap
   - transport
 testImports:
 - name: github.com/fatih/structs

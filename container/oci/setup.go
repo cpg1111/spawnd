@@ -3,6 +3,8 @@ package oci
 import (
 	"fmt"
 	"syscall"
+
+	"github.com/syndtr/gocapability/capability"
 )
 
 func mountRootFS(conf *Config) error {
@@ -105,4 +107,17 @@ func SetupEnv(conf *Config) error {
 		}
 	}
 	return nil
+}
+
+func SetCaps(conf *Config) error {
+	c, err := capability.NewPid(0)
+	if err != nil {
+		return err
+	}
+	caps := conf.Process.Capabilities
+	var capabilities []capability.Caps
+	for i := range caps {
+		capabilities = append(capabilities, CapStrToVal(caps[i]))
+	}
+	c.Set(capability.CAPS, capabilities...)
 }

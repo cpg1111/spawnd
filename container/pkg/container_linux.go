@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/cpg1111/spawnd/oci"
+	"github.com/cpg1111/spawnd/container/oci"
 )
 
 func Parent(conf *oci.Config) {
@@ -41,6 +41,10 @@ func Child(conf *oci.Config) {
 		panic(err)
 	}
 	err = oci.SetEnv(conf)
+	if err != nil {
+		panic(err)
+	}
+	err = oci.SetCaps(conf)
 	if err != nil {
 		panic(err)
 	}
