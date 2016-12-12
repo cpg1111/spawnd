@@ -101,3 +101,10 @@ func SetupUser(conf *Config) error {
 	}
 	return syscall.Setgid(gid)
 }
+
+func SetCWD(conf *Config) error {
+	if len(conf.Process.CWD) > 0 {
+		return os.Chdir(conf.Process.CWD)
+	}
+	return nil
+}
