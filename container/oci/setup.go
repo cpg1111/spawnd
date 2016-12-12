@@ -7,19 +7,13 @@ import (
 	"github.com/syndtr/gocapability/capability"
 
 	"github.com/cpg1111/spawnd/container/apparmor"
+	"github.com/cpg1111/spawnd/container/fs"
+	"github.com/cpg1111/spawnd/container/namespace"
 )
-
-func mountRootFS(conf *Config) error {
-	return syscall.Mount(conf.Root.Path, "rootfs", "", syscall.MS_BIND, "")
-}
-
-func mountAdditional(mountConf *mounts) error {
-	return syscall.Mount(mountConf.Source, mountConf.Destination, mountConf.Type, syscall.MS_BIND, "")
-}
 
 func SetupFS(conf *Config) error {
 	hasMountedDev := false
-	err := mountRootFS(conf)
+	err := fs.MountRootFS(conf.Root.Path)
 	if err != nil {
 		return err
 	}
@@ -35,20 +29,20 @@ func SetupFS(conf *Config) error {
 		} else if m.Destination == "/dev" {
 			hasMountedDev = true
 		}
-		err = mountAdditional(m)
+		err = fs.MountAdditional(m.Source, m.Destination, m.Type)
 		if err != nil {
 			return err
 		}
 	}
 	if len(conf.Linux.Devices) > 0 {
 		if !hasMountedDev {
-			err = mountDevFS(conf)
+			err = fs.MountDevFS()
 			if err != nil {
 				return err
 			}
 		}
 		for _, d := range conf.Linux.Devices {
-			err = mountAdditional(m)
+			err = fs.MountAdditional(d.Path, d.Path, d.Type)
 			if err != nil {
 				return err
 			}
@@ -58,32 +52,16 @@ func SetupFS(conf *Config) error {
 }
 
 func SetupNamespaces(conf *Config) (uintptr, error) {
+	var err error
 	flags := syscall.CLONE_NEWPID
 	for _, n := range conf.Namespaces {
-		switch n.Type {
-		case "uts":
-			flags = flags | syscall.CLONE_NEWUTS
-			break
-		case "ipc":
-			flags = flags | syscall.CLONE_NEWIPC
-			break
-		case "user":
-			flags = flags | syscall.CLONE_NEWUSER
-			break
-		case "mount":
-			flags = flags | syscall.CLONE_NEWNS
-			break
-		case "net":
-			flags = flags | syscall.CLONE_NEWNET
-			break
-		case "cgroup":
-			flags = flags | syscall.CLONE_NEWCGROUP
-			break
-		default:
-			return 0x0, fmt.Errorf("unsupported namespace %s", n.Type)
+		newFlag, err := namespace.Setup(n.Type)
+		if err != nil {
+			return err
 		}
+		flags = flags | newFlag
 	}
-	return flags, nil
+	return flags, err
 }
 
 func SetUser(conf *Config) *syscall.Credential {
@@ -149,3 +127,5 @@ func SetRLimits(conf *Config) error {
 func SetupAppArmor(conf *Config) error {
 	return apparmor.SetProfile(conf.Process.AppArmorProfile)
 }
+
+//TODO: setup SELinux

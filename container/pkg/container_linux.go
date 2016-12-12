@@ -56,6 +56,8 @@ func setupChild(conf *oci.Config) {
 	if err != nil {
 		panic(err)
 	}
+	//TODO: SELinux
+	//TODO: noNewPrivileges
 }
 
 func execChild(conf *oci.Config) {
