@@ -17,6 +17,7 @@ func Parent(conf *oci.Config) {
 		panic(nsErr)
 	}
 	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Credential: oci.SetUser(conf),
 		CloneFlags: cloneFlags,
 		Setctty:    conf.Process.Terminal,
 		Noctty:     !conf.Process.Terminal,
@@ -32,10 +33,6 @@ func Parent(conf *oci.Config) {
 
 func Child(conf *oci.Config) {
 	err := oci.SetupFS(conf)
-	if err != nil {
-		panic(err)
-	}
-	err = oci.SetupUser(conf)
 	if err != nil {
 		panic(err)
 	}
