@@ -52,6 +52,10 @@ func setupChild(conf *oci.Config) {
 	if err != nil {
 		panic(err)
 	}
+	err = oci.SetupAppArmor(conf)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func execChild(conf *oci.Config) {

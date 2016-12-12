@@ -5,6 +5,8 @@ import (
 	"syscall"
 
 	"github.com/syndtr/gocapability/capability"
+
+	"github.com/cpg1111/spawnd/container/apparmor"
 )
 
 func mountRootFS(conf *Config) error {
@@ -142,4 +144,8 @@ func SetRLimits(conf *Config) error {
 		}
 	}
 	return nil
+}
+
+func SetupAppArmor(conf *Config) error {
+	return apparmor.SetProfile(conf.Process.AppArmorProfile)
 }
