@@ -1,12 +1,15 @@
 package pkg
 
 import (
+	"context"
 	"errors"
 	"log"
 	"os"
 	"os/exec"
 	"syscall"
+	"time"
 
+	"github.com/cpg1111/spawnd/container/hooks"
 	"github.com/cpg1111/spawnd/container/oci"
 )
 
@@ -61,17 +64,20 @@ func setupChild(conf *oci.Config) {
 }
 
 func execChild(conf *oci.Config) {
-	cmd := exec.Command(exec.LookPath(conf.Process.Args[0]))
+	ctx := context.Background()
+	ctx, _ = context.WithTimeout(ctx, conf.Process.Timeout*time.Second)
+	cmd := exec.CommandContext(exec.LookPath(conf.Process.Args[0]))
 	if len(conf.Process.Args) > 1 {
 		cmd.Args = append(cmd.Args, conf.Process.Args[1:]...)
+	}
+	if len(conf.Process.Env) > 0 {
+		cmd.Env = append(cmd.Env, conf.Process.Env)
 	}
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	runErr := cmd.Run()
-	if runErr != nil {
-		log.Fatal(runErr)
-	}
+	hookMgr := hooks.New(conf)
+	hookMgr.Run()
 }
 
 func Child(conf *oci.Config) {

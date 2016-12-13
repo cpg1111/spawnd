@@ -168,7 +168,7 @@ type linux struct {
 	MountLabel        string            `json:"mountLabel"`
 }
 
-type hook struct {
+type Hook struct {
 	Path   string   `json:"path"`
 	Args   []string `json:"args"`
 	Env    []string `json:"env"`

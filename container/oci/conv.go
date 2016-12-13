@@ -3,7 +3,7 @@ package oci
 import (
 	"fmt"
 
-	"github.com/syndtr/gocapabilities/capability"
+	"github.com/syndtr/gocapability/capability"
 )
 
 func ParseENVStr(envvar string) (res map[string]string, err error) {
