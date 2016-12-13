@@ -1,31 +1,16 @@
+// +build apparmor,linux
+
 package apparmor
 
+// #cgo LDFLAGS: -lapparmor
+// #include <sys/apparmor.h>
+// #include <stdlib.h>
 import "C"
+
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"unsafe"
 )
-
-func Enabled() bool {
-	_, err := os.Stat("/sys/kernel/security/apparmor")
-	if err != nil {
-		return false
-	}
-	buffer, err := ioutil.ReadFile("/sys/module/apparmor/parametes/enabled")
-	if err != nil {
-		return false
-	}
-	return buffer[o] == 'Y'
-}
-
-func Check() error {
-	if !Enabled() {
-		return errors.New("specified an apparmor profile when apparmor is not enabled")
-	}
-	return nil
-}
 
 func SetProfile(prof string) error {
 	if len(prof) == 0 {
