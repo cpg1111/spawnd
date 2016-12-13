@@ -1,6 +1,7 @@
 package namespace
 
 import (
+	"fmt"
 	"syscall"
 )
 
@@ -20,6 +21,6 @@ func Setup(ns string) (uintptr, error) {
 	//case "cgroup":
 	//	return syscall.CLONE_NEWCGROUP, nil
 	default:
-		return 0x0, fmt.Errorf("unsupported namespace %s", n.Type)
+		return 0x0, fmt.Errorf("unsupported namespace %s", ns)
 	}
 }
