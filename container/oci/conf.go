@@ -1,8 +1,6 @@
 package oci
 
 import (
-	"encoding/json"
-	"os"
 	"syscall"
 )
 
@@ -11,7 +9,7 @@ type rootfs struct {
 	ReadOnly bool   `json:"readonly"`
 }
 
-type mounts struct {
+type mount struct {
 	Destination string   `json:"destination"`
 	Type        string   `json:"type"`
 	Source      string   `json:"source"`
@@ -24,9 +22,9 @@ type consoleSize struct {
 }
 
 type user struct {
-	UID            int `json:"uid"`
-	GID            int `json:"gid"`
-	AdditionalGIDs `json:"additionalGids"`
+	UID            int   `json:"uid"`
+	GID            int   `json:"gid"`
+	AdditionalGIDs []int `json:"additionalGids"`
 }
 
 type process struct {
@@ -48,7 +46,7 @@ type platform struct {
 	ARCH string `json:"arch"`
 }
 
-type namespace struct {
+type Namespace struct {
 	Type string `json:"type"`
 	Path string `json:"path",omitempty`
 }
@@ -101,7 +99,7 @@ type pids struct {
 }
 
 type hpLimit struct {
-	PageSize `json:"pageSize"`
+	PageSize int64 `json:"pageSize"`
 	Limit    int64 `json:"limit"`
 }
 
@@ -153,21 +151,6 @@ type seccomp struct {
 	Syscalls      []seccompSyscall `json:"syscalls"`
 }
 
-type linux struct {
-	Namespaces        []namespace       `json:"namespaces",omitempty`
-	UIDMapping        []mapping         `json:"uidMapping",omitempty`
-	GIDMapping        []mapping         `json:"gidMapping",omitempty`
-	Devices           []device          `json:"devices",omitempty`
-	Sysctl            map[string]string `json:"sysctl"`
-	CGRoupPath        string            `json:"cgroupPath"`
-	Resources         cgroupResource    `json:"resources"`
-	RootFSPropagation string            `json:"rootfsPropagation"`
-	Seccomp           seccomp           `json:"seccomp"`
-	MaskedPaths       []string          `json:"maskedPaths"`
-	ReadonlyPaths     []string          `json:"readonlyPaths"`
-	MountLabel        string            `json:"mountLabel"`
-}
-
 type Hook struct {
 	Path   string   `json:"path"`
 	Args   []string `json:"args"`
@@ -176,23 +159,22 @@ type Hook struct {
 }
 
 type hooks struct {
-	PreStart  []hook `json:"prestart"`
-	PostStart []hook `json:"poststart"`
-	PostStop  []hook `json:"poststop"`
+	PreStart  []Hook `json:"prestart"`
+	PostStart []Hook `json:"poststart"`
+	PostStop  []Hook `json:"poststop"`
 }
 
-type Config interface{}
+type OS interface {
+}
 
-type linuxConfig struct {
-	Config
-	OCIVersion string   `json:"ociversion"`
-	Root       rootfs   `json:"root"`
-	Mounts     []mount  `json:"mounts"`
-	Process    process  `json:"process"`
-	HostName   string   `json:"hostname"`
-	Platform   platform `json:"platform"`
-	Linux      linux    `json:"linux",omitempty`
-	Hooks      hooks    `json:"hooks",omitempty`
+type Config interface {
+	GetRoot() rootfs
+	GetMounts() []mount
+	GetProcess() process
+	GetHostName() string
+	GetPlatorm() platform
+	GetOS() OS
+	GetHooks() hooks
 }
 
 type bsdConfig struct {
