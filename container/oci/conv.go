@@ -13,9 +13,9 @@ func ParseENVStr(envvar string) (res map[string]string, err error) {
 	)
 	begin := 0
 	for i := range envvar {
-		if envvar[i] == "=" {
+		if envvar[i] == '=' {
 			key = envvar[begin:i]
-			val = envar[i+1:]
+			val = envvar[i+1:]
 		}
 	}
 	if len(key) == 0 {
