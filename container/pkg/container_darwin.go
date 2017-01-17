@@ -1,13 +1,16 @@
 package pkg
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
+
+	"github.com/cpg1111/spawnd/container/oci"
 )
 
-func Parent() {
-	sbFilePath := os.Getenv("SANDBOX_CONFIG")
+func Parent(conf oci.Config) {
+	sbFilePath := fmt.Sprintf("/tmp/sandboxes/%s.sb", conf.GetHostname())
 	sandboxBin, sandBinErr := exec.LookPath("sandbox-exec")
 	if sandBinErr != nil {
 		log.Fatal("ERROR:", sandBinErr)
@@ -26,6 +29,6 @@ func Parent() {
 	}
 }
 
-func Child() {
+func Child(conf oci.Config) {
 	log.Fatal("ERROR: child func not supported on this OS")
 }

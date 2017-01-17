@@ -1,9 +1,11 @@
+// +build !darwin,freebsd
+
 package pkg
 
-// +build !darwin
-// +build freebsd
-
 import (
+	"log"
+	"os"
+
 	jail "github.com/cpg1111/go-jail"
 )
 

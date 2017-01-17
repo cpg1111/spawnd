@@ -1,8 +1,10 @@
 (version 1)
-(debug deny)
+(debug allow)
 
 (import "bsd.sb")
-(allow signal)
-(allow ipc-posix-shm)
-(allow process*)
-
+{{range Allowed}}
+    (allow {{.}})
+{{end}}
+{{range Denied}}
+    (deny {{.}})
+{{end}}

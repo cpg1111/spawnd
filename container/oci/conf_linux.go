@@ -1,8 +1,7 @@
 package oci
 
 import (
-	"encoding/json"
-	"os"
+    
 )
 
 type linux struct {
@@ -42,13 +41,9 @@ type linuxConfig struct {
 }
 
 func LoadConfig(path string) (Config, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	conf := &linuxConfig{}
-	err = json.NewEncoder(file).Encode(conf)
-	return *conf, err
+	conf := linuxConfig{}
+	loaded, err := loadConfig(conf, path)
+	return *loaded, err
 }
 
 func (l linuxConfig) GetRoot() rootfs {
@@ -77,4 +72,38 @@ func (l linuxConfig) GetOS() OS {
 
 func (l linuxConfig) GetHooks() hooks {
 	return l.Hooks
+}
+
+func (l linuxConfig) GetHostname() string {
+    return l.HostName
+}
+
+func (l linuxConfig) SetCaps() error {
+    c, err := capability.NewPid(0)
+	if err != nil {
+		return err
+	}
+	caps := conf.GetProcess().Capabilities
+	var capabilities []capability.Cap
+	for i := range caps {
+		cap, err := CapStrToVal(caps[i])
+		if err != nil {
+			return err
+		}
+		capabilities = append(capabilities, cap)
+	}
+	c.Set(capability.CAPS, capabilities...)
+	return nil
+}
+
+func (l linuxConfig) SetupNamespaces() {
+    flags := uintptr(syscall.CLONE_NEWPID)
+	for _, n := range l.GetOS().GetNamespaces() {
+		newFlag, err := namespace.Setup(n.Type)
+		if err != nil {
+			return flags, err
+		}
+		flags = flags | newFlag
+	}
+	return flags, nil
 }

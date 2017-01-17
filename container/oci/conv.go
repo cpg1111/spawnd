@@ -128,3 +128,14 @@ func rlimitType(ty string) (int, error) {
 		return -1, fmt.Errorf("invalid rlimit specified: %s", ty)
 	}
 }
+
+type darwinCaps struct {
+	Allowed []string
+	Denied  []string
+}
+
+func capStrToDarwin(caps []string) *darwinCaps {
+	return &darwinCaps{
+		Allowed: caps,
+	}
+}

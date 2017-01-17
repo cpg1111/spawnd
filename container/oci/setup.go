@@ -4,10 +4,7 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/syndtr/gocapability/capability"
-
 	"github.com/cpg1111/spawnd/container/fs"
-	"github.com/cpg1111/spawnd/container/namespace"
 )
 
 func SetupFS(conf Config) error {
@@ -69,16 +66,7 @@ func SetupFS(conf Config) error {
 }
 
 func SetupNamespaces(conf Config) (uintptr, error) {
-	var err error
-	flags := uintptr(syscall.CLONE_NEWPID)
-	for _, n := range conf.GetOS().GetNamespaces() {
-		newFlag, err := namespace.Setup(n.Type)
-		if err != nil {
-			return flags, err
-		}
-		flags = flags | newFlag
-	}
-	return flags, err
+	return conf.SetupNamespace()
 }
 
 func SetUser(conf Config) *syscall.Credential {
@@ -112,21 +100,7 @@ func SetupEnv(conf Config) error {
 }
 
 func SetCaps(conf Config) error {
-	c, err := capability.NewPid(0)
-	if err != nil {
-		return err
-	}
-	caps := conf.GetProcess().Capabilities
-	var capabilities []capability.Cap
-	for i := range caps {
-		cap, err := CapStrToVal(caps[i])
-		if err != nil {
-			return err
-		}
-		capabilities = append(capabilities, cap)
-	}
-	c.Set(capability.CAPS, capabilities...)
-	return nil
+	return conf.SetCaps()
 }
 
 func setRLimit(ty string, hard, soft int) error {
