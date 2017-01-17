@@ -2,8 +2,9 @@ package oci
 
 import (
 	"fmt"
+	"syscall"
 
-	"github.com/syndtr/gocapabilities/capability"
+	"github.com/syndtr/gocapability/capability"
 )
 
 func ParseENVStr(envvar string) (res map[string]string, err error) {
@@ -13,9 +14,10 @@ func ParseENVStr(envvar string) (res map[string]string, err error) {
 	)
 	begin := 0
 	for i := range envvar {
-		if envvar[i] == "=" {
+		if envvar[i] == '=' {
 			key = envvar[begin:i]
-			val = envar[i+1:]
+			val = envvar[i+1:]
+			break
 		}
 	}
 	if len(key) == 0 {
@@ -43,8 +45,6 @@ func CapStrToVal(cap string) (capability.Cap, error) {
 		return capability.CAP_SETGID, nil
 	case "CAP_SETUID":
 		return capability.CAP_SETUID, nil
-	case "CAP_SETCAP":
-		return capability.CAP_SETCAP, nil
 	case "CAP_LINUX_IMMUTABLE":
 		return capability.CAP_LINUX_IMMUTABLE, nil
 	case "CAP_NET_BIND_SERVICE":
@@ -105,5 +105,26 @@ func CapStrToVal(cap string) (capability.Cap, error) {
 		return capability.CAP_AUDIT_READ, nil
 	default:
 		return -1, fmt.Errorf("invalid capability specified: '%s'", cap)
+	}
+}
+
+func rlimitType(ty string) (int, error) {
+	switch ty {
+	case "RLIMIT_AS":
+		return syscall.RLIMIT_AS, nil
+	case "RLIMIT_CORE":
+		return syscall.RLIMIT_CORE, nil
+	case "RLIMIT_CPU":
+		return syscall.RLIMIT_CPU, nil
+	case "RLIMIT_DATA":
+		return syscall.RLIMIT_DATA, nil
+	case "RLIMIT_FSIZE":
+		return syscall.RLIMIT_FSIZE, nil
+	case "RLIMIT_NOFILE":
+		return syscall.RLIMIT_NOFILE, nil
+	case "RLIMIT_STACK":
+		return syscall.RLIMIT_STACK, nil
+	default:
+		return -1, fmt.Errorf("invalid rlimit specified: %s", ty)
 	}
 }

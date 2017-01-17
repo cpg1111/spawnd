@@ -15,3 +15,11 @@ func MountAdditional(source, dest, t string) error {
 func MountDevFS() error {
 	return syscall.Mount("tmpfs", "/dev", "tmpfs", syscall.MS_BIND, "")
 }
+
+func MountProcFS() error {
+	return syscall.Mount("proc", "/proc", "proc", syscall.MS_BIND, "")
+}
+
+func MountSysFS() error {
+	return syscall.Mount("sysfs", "/sys", "sysfs", syscall.MS_BIND, "")
+}

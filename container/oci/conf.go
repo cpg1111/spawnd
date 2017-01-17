@@ -1,17 +1,11 @@
 package oci
 
-import (
-	"encoding/json"
-	"os"
-	"syscall"
-)
-
 type rootfs struct {
 	Path     string `json:"path"`
 	ReadOnly bool   `json:"readonly"`
 }
 
-type mounts struct {
+type mount struct {
 	Destination string   `json:"destination"`
 	Type        string   `json:"type"`
 	Source      string   `json:"source"`
@@ -24,23 +18,29 @@ type consoleSize struct {
 }
 
 type user struct {
-	UID            int `json:"uid"`
-	GID            int `json:"gid"`
-	AdditionalGIDs `json:"additionalGids"`
+	UID            uint32   `json:"uid"`
+	GID            uint32   `json:"gid"`
+	AdditionalGIDs []uint32 `json:"additionalGids"`
+}
+
+type rlimit struct {
+	Type string `json:"type"`
+	Hard int    `json:"hard"`
+	Soft int    `json:"soft"`
 }
 
 type process struct {
-	Terminal        bool             `json:"terminal"`
-	ConsoleSize     consoleSize      `json:"consoleSize"`
-	CWD             string           `json:"cwd"`
-	Env             []string         `json:"env"`
-	Args            []string         `json:"args"`
-	Capabilities    []string         `json:"capabilities"`
-	RLimits         []syscall.Rlimit `json:"rlimits"`
-	AppArmorProfile string           `json:"apparmorprofile"`
-	SELinuxLabel    string           `json:"selinuxLabel"`
-	NoNewPrivileges bool             `json:"noNewPrivileges"`
-	User            user             `json:"user"`
+	Terminal        bool        `json:"terminal"`
+	ConsoleSize     consoleSize `json:"consoleSize"`
+	CWD             string      `json:"cwd"`
+	Env             []string    `json:"env"`
+	Args            []string    `json:"args"`
+	Capabilities    []string    `json:"capabilities"`
+	RLimits         []rlimit    `json:"rlimits"`
+	AppArmorProfile string      `json:"apparmorprofile"`
+	SELinuxLabel    string      `json:"selinuxLabel"`
+	NoNewPrivileges bool        `json:"noNewPrivileges"`
+	User            user        `json:"user"`
 }
 
 type platform struct {
@@ -48,7 +48,7 @@ type platform struct {
 	ARCH string `json:"arch"`
 }
 
-type namespace struct {
+type Namespace struct {
 	Type string `json:"type"`
 	Path string `json:"path",omitempty`
 }
@@ -101,7 +101,7 @@ type pids struct {
 }
 
 type hpLimit struct {
-	PageSize `json:"pageSize"`
+	PageSize int64 `json:"pageSize"`
 	Limit    int64 `json:"limit"`
 }
 
@@ -153,46 +153,32 @@ type seccomp struct {
 	Syscalls      []seccompSyscall `json:"syscalls"`
 }
 
-type linux struct {
-	Namespaces        []namespace       `json:"namespaces",omitempty`
-	UIDMapping        []mapping         `json:"uidMapping",omitempty`
-	GIDMapping        []mapping         `json:"gidMapping",omitempty`
-	Devices           []device          `json:"devices",omitempty`
-	Sysctl            map[string]string `json:"sysctl"`
-	CGRoupPath        string            `json:"cgroupPath"`
-	Resources         cgroupResource    `json:"resources"`
-	RootFSPropagation string            `json:"rootfsPropagation"`
-	Seccomp           seccomp           `json:"seccomp"`
-	MaskedPaths       []string          `json:"maskedPaths"`
-	ReadonlyPaths     []string          `json:"readonlyPaths"`
-	MountLabel        string            `json:"mountLabel"`
-}
-
-type hook struct {
-	Path   string   `json:"path"`
-	Args   []string `json:"args"`
-	Env    []string `json:"env"`
-	Timout int      `json:"timeout"`
+type Hook struct {
+	Path    string   `json:"path"`
+	Args    []string `json:"args"`
+	Env     []string `json:"env"`
+	Timeout int      `json:"timeout"`
 }
 
 type hooks struct {
-	PreStart  []hook `json:"prestart"`
-	PostStart []hook `json:"poststart"`
-	PostStop  []hook `json:"poststop"`
+	PreStart  []Hook `json:"prestart"`
+	PostStart []Hook `json:"poststart"`
+	PostStop  []Hook `json:"poststop"`
 }
 
-type Config interface{}
+type OS interface {
+	GetDevices() []device
+	GetNamespaces() []Namespace
+}
 
-type linuxConfig struct {
-	Config
-	OCIVersion string   `json:"ociversion"`
-	Root       rootfs   `json:"root"`
-	Mounts     []mount  `json:"mounts"`
-	Process    process  `json:"process"`
-	HostName   string   `json:"hostname"`
-	Platform   platform `json:"platform"`
-	Linux      linux    `json:"linux",omitempty`
-	Hooks      hooks    `json:"hooks",omitempty`
+type Config interface {
+	GetRoot() rootfs
+	GetMounts() []mount
+	GetProcess() process
+	GetHostName() string
+	GetPlatorm() platform
+	GetOS() OS
+	GetHooks() hooks
 }
 
 type bsdConfig struct {
