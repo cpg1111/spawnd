@@ -1,6 +1,7 @@
 package oci
 
 import (
+	"os"
 	"syscall"
 
 	"github.com/syndtr/gocapability/capability"
