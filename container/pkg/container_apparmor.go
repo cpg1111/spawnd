@@ -1,6 +1,6 @@
 // +build apparmor,linux
 
-package oci
+package pkg
 
 import (
     "github.com/cpg1111/spawnd/container/apparmor"

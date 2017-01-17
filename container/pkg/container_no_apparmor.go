@@ -1,6 +1,6 @@
 // +build !apparmor
 
-package oci
+package pkg
 
 func setAdditional() {
 	// no-op
