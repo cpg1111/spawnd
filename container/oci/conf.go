@@ -22,9 +22,9 @@ type consoleSize struct {
 }
 
 type user struct {
-	UID            int   `json:"uid"`
-	GID            int   `json:"gid"`
-	AdditionalGIDs []int `json:"additionalGids"`
+	UID            uint32   `json:"uid"`
+	GID            uint32   `json:"gid"`
+	AdditionalGIDs []uint32 `json:"additionalGids"`
 }
 
 type process struct {
