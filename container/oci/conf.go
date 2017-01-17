@@ -154,10 +154,10 @@ type seccomp struct {
 }
 
 type Hook struct {
-	Path   string   `json:"path"`
-	Args   []string `json:"args"`
-	Env    []string `json:"env"`
-	Timout int      `json:"timeout"`
+	Path    string   `json:"path"`
+	Args    []string `json:"args"`
+	Env     []string `json:"env"`
+	Timeout int      `json:"timeout"`
 }
 
 type hooks struct {

@@ -9,19 +9,20 @@ import (
 )
 
 type HooksMgr interface {
-	Prestart(conf *oci.Config) error
-	Poststart(conf *oci.Config) error
-	Poststop(conf *oci.Config) error
+	Prestart(conf oci.Config) error
+	Poststart(conf oci.Config) error
+	Poststop(conf oci.Config) error
+	Run(conf oci.Config)
 }
 
 type hooksMgr struct {
 	HooksMgr
-	MainCMD exec.Cmd
+	MainCMD *exec.Cmd
 }
 
 func execHook(path string, args, env []string, timeout int) error {
 	ctx := context.Background()
-	ctx, _ := context.WithTimeout(ctx, timeout*time.Second)
+	ctx, _ = context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
 	cmd := exec.CommandContext(ctx, path, args...)
 	cmd.Env = env
 	return cmd.Run()
@@ -37,16 +38,16 @@ func execHooks(hooks []oci.Hook) error {
 	return nil
 }
 
-func (h hooksMgr) Prestart(conf *oci.Config) error {
-	return execHooks(conf.Hooks.PresStart)
+func (h hooksMgr) Prestart(conf oci.Config) error {
+	return execHooks(conf.GetHooks().PreStart)
 }
 
-func (h hooksMgr) Poststart(conf *oci.Config) error {
-	return execHooks(conf.Hooks.PostStart)
+func (h hooksMgr) Poststart(conf oci.Config) error {
+	return execHooks(conf.GetHooks().PostStart)
 }
 
-func (h hooksMgr) Poststop(conf *oci.Config) error {
-	return execHooks(conf.Hooks.PostStop)
+func (h hooksMgr) Poststop(conf oci.Config) error {
+	return execHooks(conf.GetHooks().PostStop)
 }
 
 func must(err error) {
@@ -55,7 +56,7 @@ func must(err error) {
 	}
 }
 
-func (h hooksMgr) Run(conf *oci.Config) {
+func (h hooksMgr) Run(conf oci.Config) {
 	must(h.Prestart(conf))
 	must(h.MainCMD.Start())
 	must(h.Poststart(conf))
@@ -63,7 +64,7 @@ func (h hooksMgr) Run(conf *oci.Config) {
 	must(h.Poststop(conf))
 }
 
-func New(main exec.Cmd) HooksMgr {
+func New(main *exec.Cmd) HooksMgr {
 	return hooksMgr{
 		MainCMD: main,
 	}
