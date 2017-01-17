@@ -10,17 +10,23 @@ import (
 	"github.com/cpg1111/spawnd/container/namespace"
 )
 
-func SetupFS(conf *Config) error {
-	hasMountedDev := false
-	err := fs.MountRootFS(conf.Root.Path)
+func SetupFS(conf Config) error {
+	var (
+		hasMountedProc bool
+		hasMountedSys  bool
+		hasMountedDev  bool
+	)
+	rootPath := conf.GetRoot().Path
+	osConf := conf.GetOS()
+	err := fs.MountRootFS(rootPath)
 	if err != nil {
 		return err
 	}
-	err = syscall.Chroot(conf.Root.Path)
+	err = syscall.Chroot(rootPath)
 	if err != nil {
 		return err
 	}
-	for _, m := range conf.Mounts {
+	for _, m := range conf.GetMounts() {
 		if m.Type == "proc" {
 			hasMountedProc = true
 		} else if m.Type == "sysfs" {
@@ -33,14 +39,14 @@ func SetupFS(conf *Config) error {
 			return err
 		}
 	}
-	if len(conf.Linux.Devices) > 0 {
+	if len(osConf.GetDevices()) > 0 {
 		if !hasMountedDev {
 			err = fs.MountDevFS()
 			if err != nil {
 				return err
 			}
 		}
-		for _, d := range conf.Linux.Devices {
+		for _, d := range osConf.GetDevices() {
 			err = fs.MountAdditional(d.Path, d.Path, d.Type)
 			if err != nil {
 				return err
@@ -50,55 +56,65 @@ func SetupFS(conf *Config) error {
 	return nil
 }
 
-func SetupNamespaces(conf *Config) (uintptr, error) {
+func SetupNamespaces(conf Config) (uintptr, error) {
 	var err error
-	flags := syscall.CLONE_NEWPID
-	for _, n := range conf.Namespaces {
+	flags := uintptr(syscall.CLONE_NEWPID)
+	for _, n := range conf.GetOS().GetNamespaces() {
 		newFlag, err := namespace.Setup(n.Type)
 		if err != nil {
-			return err
+			return flags, err
 		}
 		flags = flags | newFlag
 	}
 	return flags, err
 }
 
-func SetUser(conf *Config) *syscall.Credential {
+func SetUser(conf Config) *syscall.Credential {
+	proc := conf.GetProcess()
 	return &syscall.Credential{
-		Uid:    conf.Process.User.UID,
-		Gid:    conf.Process.User.GID,
-		Groups: conf.Process.User.Groups,
+		Uid:    proc.User.UID,
+		Gid:    proc.User.GID,
+		Groups: proc.User.AdditionalGIDs,
 	}
 }
 
-func SetCWD(conf *Config) error {
-	if len(conf.Process.CWD) > 0 {
-		return os.Chdir(conf.Process.CWD)
+func SetCWD(conf Config) error {
+	proc := conf.GetProcess()
+	if len(proc.CWD) > 0 {
+		return os.Chdir(proc.CWD)
 	}
 	return nil
 }
 
-func SetupEnv(conf *Config) error {
-	for _, e := range conf.Process.Env {
-		err := ParseENVStr(e)
+func SetupEnv(conf Config) error {
+	for _, e := range conf.GetProcess().Env {
+		env, err := ParseENVStr(e)
 		if err != nil {
 			return err
+		}
+		for k := range env {
+			os.Setenv(k, env[k])
 		}
 	}
 	return nil
 }
 
-func SetCaps(conf *Config) error {
+func SetCaps(conf Config) error {
 	c, err := capability.NewPid(0)
 	if err != nil {
 		return err
 	}
-	caps := conf.Process.Capabilities
-	var capabilities []capability.Caps
+	caps := conf.GetProcess().Capabilities
+	var capabilities []capability.Cap
 	for i := range caps {
-		capabilities = append(capabilities, CapStrToVal(caps[i]))
+		cap, err := CapStrToVal(caps[i])
+		if err != nil {
+			return err
+		}
+		capabilities = append(capabilities, cap)
 	}
 	c.Set(capability.CAPS, capabilities...)
+	return nil
 }
 
 func setRLimit(ty string, hard, soft int) error {
@@ -113,8 +129,8 @@ func setRLimit(ty string, hard, soft int) error {
 	return syscall.Setrlimit(resource, rlimit)
 }
 
-func SetRLimits(conf *Config) error {
-	for _, rlim := range conf.Process.Rlimits {
+func SetRLimits(conf Config) error {
+	for _, rlim := range conf.GetProcess().Rlimits {
 		err := setRLimit(rlim.Type, rlim.Hard, rlim.Soft)
 		if err != nil {
 			return err
@@ -123,8 +139,8 @@ func SetRLimits(conf *Config) error {
 	return nil
 }
 
-func SetupAppArmor(conf *Config) error {
-	return apparmor.SetProfile(conf.Process.AppArmorProfile)
+func SetupAppArmor(conf Config) error {
+	return apparmor.SetProfile(conf.GetProcess().AppArmorProfile)
 }
 
 //TODO: setup SELinux

@@ -21,6 +21,14 @@ type linux struct {
 	MountLabel        string            `json:"mountLabel"`
 }
 
+func (l linux) GetDevices() []device {
+	return l.Devices
+}
+
+func (l linux) GetNamespaces() []Namespace {
+	return l.Namespaces
+}
+
 type linuxConfig struct {
 	Config
 	OCIVersion string   `json:"ociversion"`

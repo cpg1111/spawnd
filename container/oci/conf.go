@@ -165,6 +165,8 @@ type hooks struct {
 }
 
 type OS interface {
+	GetDevices() []device
+	GetNamespaces() []Namespace
 }
 
 type Config interface {
