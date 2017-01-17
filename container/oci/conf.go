@@ -1,9 +1,5 @@
 package oci
 
-import (
-	"syscall"
-)
-
 type rootfs struct {
 	Path     string `json:"path"`
 	ReadOnly bool   `json:"readonly"`
@@ -27,18 +23,24 @@ type user struct {
 	AdditionalGIDs []uint32 `json:"additionalGids"`
 }
 
+type rlimit struct {
+	Type string `json:"type"`
+	Hard int    `json:"hard"`
+	Soft int    `json:"soft"`
+}
+
 type process struct {
-	Terminal        bool             `json:"terminal"`
-	ConsoleSize     consoleSize      `json:"consoleSize"`
-	CWD             string           `json:"cwd"`
-	Env             []string         `json:"env"`
-	Args            []string         `json:"args"`
-	Capabilities    []string         `json:"capabilities"`
-	RLimits         []syscall.Rlimit `json:"rlimits"`
-	AppArmorProfile string           `json:"apparmorprofile"`
-	SELinuxLabel    string           `json:"selinuxLabel"`
-	NoNewPrivileges bool             `json:"noNewPrivileges"`
-	User            user             `json:"user"`
+	Terminal        bool        `json:"terminal"`
+	ConsoleSize     consoleSize `json:"consoleSize"`
+	CWD             string      `json:"cwd"`
+	Env             []string    `json:"env"`
+	Args            []string    `json:"args"`
+	Capabilities    []string    `json:"capabilities"`
+	RLimits         []rlimit    `json:"rlimits"`
+	AppArmorProfile string      `json:"apparmorprofile"`
+	SELinuxLabel    string      `json:"selinuxLabel"`
+	NoNewPrivileges bool        `json:"noNewPrivileges"`
+	User            user        `json:"user"`
 }
 
 type platform struct {

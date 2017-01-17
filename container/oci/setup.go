@@ -6,7 +6,6 @@ import (
 
 	"github.com/syndtr/gocapability/capability"
 
-	"github.com/cpg1111/spawnd/container/apparmor"
 	"github.com/cpg1111/spawnd/container/fs"
 	"github.com/cpg1111/spawnd/container/namespace"
 )
@@ -41,6 +40,18 @@ func SetupFS(conf Config) error {
 		}
 	}
 	if len(osConf.GetDevices()) > 0 {
+		if !hasMountedProc {
+			err = fs.MountProcFS()
+			if err != nil {
+				return err
+			}
+		}
+		if !hasMountedSys {
+			err = fs.MountSysFS()
+			if err != nil {
+				return err
+			}
+		}
 		if !hasMountedDev {
 			err = fs.MountDevFS()
 			if err != nil {
@@ -131,17 +142,13 @@ func setRLimit(ty string, hard, soft int) error {
 }
 
 func SetRLimits(conf Config) error {
-	for _, rlim := range conf.GetProcess().Rlimits {
+	for _, rlim := range conf.GetProcess().RLimits {
 		err := setRLimit(rlim.Type, rlim.Hard, rlim.Soft)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-func SetupAppArmor(conf Config) error {
-	return apparmor.SetProfile(conf.GetProcess().AppArmorProfile)
 }
 
 //TODO: setup SELinux
