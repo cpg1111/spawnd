@@ -1,5 +1,10 @@
 package oci
 
+import (
+	"encoding/json"
+	"os"
+)
+
 type rootfs struct {
 	Path     string `json:"path"`
 	ReadOnly bool   `json:"readonly"`
@@ -179,6 +184,8 @@ type Config interface {
 	GetPlatorm() platform
 	GetOS() OS
 	GetHooks() hooks
+	SetCaps() error
+	SetupNamespaces() (uintptr, error)
 }
 
 type bsdConfig struct {
@@ -192,13 +199,11 @@ type bsdConfig struct {
 	Hooks      hooks    `json:"hooks",omitempty`
 }
 
-type darwinConfig struct {
-	Config
-	OCIVersion string   `json:"ociversion"`
-	Root       rootfs   `json:"root"`
-	Mounts     []mount  `json:"mounts"`
-	Process    process  `json:"process"`
-	HostName   string   `json:"hostname"`
-	Platform   platform `json:"platform"`
-	Hooks      hooks    `json:"hooks",omitempty`
+func loadConfig(conf Config, path string) (*Config, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	err = json.NewEncoder(file).Encode(&conf)
+	return &conf, err
 }
