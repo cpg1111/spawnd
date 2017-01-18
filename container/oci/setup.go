@@ -66,7 +66,7 @@ func SetupFS(conf Config) error {
 }
 
 func SetupNamespaces(conf Config) (uintptr, error) {
-	return conf.SetupNamespace()
+	return conf.SetupNamespaces()
 }
 
 func SetUser(conf Config) *syscall.Credential {

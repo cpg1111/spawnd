@@ -1,7 +1,9 @@
 package oci
 
 import (
-    
+	"github.com/syndtr/gocapability/capability"
+
+	"github.com/cpg1111/spawnd/container/namespace"
 )
 
 type linux struct {
@@ -74,12 +76,8 @@ func (l linuxConfig) GetHooks() hooks {
 	return l.Hooks
 }
 
-func (l linuxConfig) GetHostname() string {
-    return l.HostName
-}
-
 func (l linuxConfig) SetCaps() error {
-    c, err := capability.NewPid(0)
+	c, err := capability.NewPid(0)
 	if err != nil {
 		return err
 	}
@@ -96,8 +94,8 @@ func (l linuxConfig) SetCaps() error {
 	return nil
 }
 
-func (l linuxConfig) SetupNamespaces() {
-    flags := uintptr(syscall.CLONE_NEWPID)
+func (l linuxConfig) SetupNamespaces() (uintptr, error) {
+	flags := uintptr(syscall.CLONE_NEWPID)
 	for _, n := range l.GetOS().GetNamespaces() {
 		newFlag, err := namespace.Setup(n.Type)
 		if err != nil {

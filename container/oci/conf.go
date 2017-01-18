@@ -184,8 +184,8 @@ type Config interface {
 	GetPlatorm() platform
 	GetOS() OS
 	GetHooks() hooks
-	SetCaps()
-	SetupNamespaces()
+	SetCaps() error
+	SetupNamespaces() (uintptr, error)
 }
 
 type bsdConfig struct {

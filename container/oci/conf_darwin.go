@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"text/template"
+
+	"github.com/cpg1111/spawnd/container/namespace"
 )
 
 type darwinConfig struct {
@@ -52,10 +54,6 @@ func (d darwinConfig) GetHooks() hooks {
 	return d.Hooks
 }
 
-func (d darwinConfig) GetHostname() string {
-	return d.HostName
-}
-
 func (d darwinConfig) SetCaps() error {
 	sbPath := os.Getenv("SANDBOX_CONFIG")
 	if len(sbPath) == 0 {
@@ -72,9 +70,9 @@ func (d darwinConfig) SetCaps() error {
 		return err
 	}
 	data := capStrToDarwin(d.Process.Capabilities)
-	t.Execute(targetFile, data)
+	return t.Execute(targetFile, data)
 }
 
-func (d darwinConfig) SetupNamespaces() {
-	return
+func (d darwinConfig) SetupNamespaces() (uintptr, error) {
+	return namespace.Setup("")
 }

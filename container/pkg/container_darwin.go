@@ -10,7 +10,7 @@ import (
 )
 
 func Parent(conf oci.Config) {
-	sbFilePath := fmt.Sprintf("/tmp/sandboxes/%s.sb", conf.GetHostname())
+	sbFilePath := fmt.Sprintf("/tmp/sandboxes/%s.sb", conf.GetHostName())
 	sandboxBin, sandBinErr := exec.LookPath("sandbox-exec")
 	if sandBinErr != nil {
 		log.Fatal("ERROR:", sandBinErr)
