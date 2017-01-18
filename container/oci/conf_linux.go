@@ -1,6 +1,8 @@
 package oci
 
 import (
+	"syscall"
+
 	"github.com/syndtr/gocapability/capability"
 
 	"github.com/cpg1111/spawnd/container/namespace"
@@ -81,7 +83,7 @@ func (l linuxConfig) SetCaps() error {
 	if err != nil {
 		return err
 	}
-	caps := conf.GetProcess().Capabilities
+	caps := l.GetProcess().Capabilities
 	var capabilities []capability.Cap
 	for i := range caps {
 		cap, err := CapStrToVal(caps[i])
